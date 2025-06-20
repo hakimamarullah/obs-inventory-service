@@ -1,0 +1,14 @@
+package com.sg.obs.dto.order;
+
+import lombok.Data;
+
+@Data
+public class OrderInfo {
+
+    private String orderNo;
+    private Long itemId;
+    private String itemName;
+    private Integer qty;
+    private Double price;
+}
+
