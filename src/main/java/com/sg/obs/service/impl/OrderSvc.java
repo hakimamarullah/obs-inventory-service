@@ -87,7 +87,7 @@ public class OrderSvc implements OrderService {
         withdrawal.setQuantity(payload.getQty());
         withdrawal.setType(InventoryType.W);
         inventoryRepository.save(withdrawal);
-        return ApiResponse.setSuccess(convertToOrderInfo(savedOrder));
+        return ApiResponse.setSuccess(convertToOrderInfo(savedOrder), 201);
     }
 
     @Transactional

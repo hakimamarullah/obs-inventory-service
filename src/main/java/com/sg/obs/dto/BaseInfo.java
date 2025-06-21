@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 @Data
 public class BaseInfo {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = DatetimePattern.YYYY_MM_DD_HH_MM_SS)
     private LocalDateTime createdDate;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = DatetimePattern.YYYY_MM_DD_HH_MM_SS)
     private LocalDateTime updatedDate;
 

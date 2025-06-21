@@ -2,6 +2,7 @@ package com.sg.obs.controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.sg.obs.annotations.LogResponse;
 import com.sg.obs.dto.ApiResponse;
 import com.sg.obs.exception.ApiException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,10 +23,11 @@ import java.util.Optional;
 
 @RestControllerAdvice
 @Slf4j
+@LogResponse
 public class GlobalControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         log.error(ex.getMessage(), ex);
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {

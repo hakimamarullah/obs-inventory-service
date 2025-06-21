@@ -6,6 +6,7 @@ import com.sg.obs.dto.order.CreateOrderRequest;
 import com.sg.obs.dto.order.OrderInfo;
 import com.sg.obs.dto.order.UpdateOrderRequest;
 import com.sg.obs.service.OrderService;
+import com.sg.obs.utility.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,32 +34,32 @@ public class OrderController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get all orders with pagination")
-    public ApiResponse<PagedModel<OrderInfo>> getOrders(@ParameterObject Pageable pageable) {
-        return orderService.getOrderList(pageable);
+    public ResponseEntity<ApiResponse<PagedModel<OrderInfo>>> getOrders(@ParameterObject Pageable pageable) {
+        return ResponseUtil.build(orderService.getOrderList(pageable));
     }
 
     @GetMapping(value = "/{orderNo}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get order by order number")
-    public ApiResponse<OrderInfo> getOrderByNo(@PathVariable String orderNo) {
-        return orderService.getOrderByOrderNo(orderNo);
+    public ResponseEntity<ApiResponse<OrderInfo>> getOrderByNo(@PathVariable String orderNo) {
+        return ResponseUtil.build(orderService.getOrderByOrderNo(orderNo));
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Create new order")
-    public ApiResponse<OrderInfo> addOrder(@RequestBody @Valid CreateOrderRequest payload) {
-        return orderService.createOrder(payload);
+    public ResponseEntity<ApiResponse<OrderInfo>> addOrder(@RequestBody @Valid CreateOrderRequest payload) {
+        return ResponseUtil.build(orderService.createOrder(payload));
     }
 
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Update existing order")
-    public ApiResponse<OrderInfo> updateOrder(@RequestBody @Valid UpdateOrderRequest payload) {
-        return orderService.updateOrder(payload);
+    public ResponseEntity<ApiResponse<OrderInfo>> updateOrder(@RequestBody @Valid UpdateOrderRequest payload) {
+        return ResponseUtil.build(orderService.updateOrder(payload));
     }
 
     @DeleteMapping(value = "/{orderNo}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Delete order by order number")
-    public ApiResponse<String> deleteOrder(@PathVariable String orderNo) {
-        return orderService.deleteOrderByOrderNo(orderNo);
+    public ResponseEntity<ApiResponse<String>> deleteOrder(@PathVariable String orderNo) {
+        return ResponseUtil.build(orderService.deleteOrderByOrderNo(orderNo));
     }
 }
 

@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sg.obs.annotations.LogResponse;
 import com.sg.obs.dto.ApiResponse;
 import com.sg.obs.exception.ApiException;
+import com.sg.obs.utility.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,7 +40,7 @@ public class GlobalControllerAdvice {
         response.setCode(400);
         response.setMessage("Invalid Arguments");
         response.setData(errors);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseUtil.build(response);
     }
 
     @ExceptionHandler(Exception.class)
@@ -54,7 +55,22 @@ public class GlobalControllerAdvice {
                 .map(Class::getCanonicalName)
                 .orElse(null);
         response.setData(causeClassName);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseUtil.build(response);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<String>> httpMessageNotReadableError(HttpMessageNotReadableException ex) {
+        log.error("[MISSING REQUEST BODY]: {}",ex.getMessage(), ex);
+        ApiResponse<String> response = new ApiResponse<>();
+        response.setCode(400);
+        response.setMessage(ex.getMessage());
+
+        String causeClassName = Optional.ofNullable(ex.getCause())
+                .map(Throwable::getClass)
+                .map(Class::getCanonicalName)
+                .orElse(null);
+        response.setData(causeClassName);
+        return ResponseUtil.build(response);
     }
 
 
@@ -64,7 +80,7 @@ public class GlobalControllerAdvice {
         response.setCode(405);
         response.setMessage(ex.getMessage());
         response.setData(req.getRequestURI());
-        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+        return ResponseUtil.build(response);
     }
 
     @ExceptionHandler({DataIntegrityViolationException.class})
@@ -75,7 +91,7 @@ public class GlobalControllerAdvice {
         response.setMessage(ex.getMostSpecificCause().getLocalizedMessage());
         response.setData(ex.getMessage());
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseUtil.build(response);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -85,7 +101,7 @@ public class GlobalControllerAdvice {
         response.setMessage(ex.getMessage());
         response.setData(ex.getParameterName());
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseUtil.build(response);
     }
 
 
@@ -97,7 +113,7 @@ public class GlobalControllerAdvice {
         response.setMessage(ex.getMessage());
         response.setData(ex.getClass().getCanonicalName());
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseUtil.build(response);
     }
 
     @ExceptionHandler({ApiException.class})
@@ -108,7 +124,7 @@ public class GlobalControllerAdvice {
         response.setMessage(ex.getMessage());
         response.setData(ex.getClass().getCanonicalName());
 
-        return new ResponseEntity<>(response, response.getHttpStatus());
+        return ResponseUtil.build(response);
     }
 
 }

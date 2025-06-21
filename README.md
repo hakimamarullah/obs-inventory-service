@@ -1,9 +1,14 @@
 # Inventory Management API (Dummy Project)
 
-A Spring Boot RESTful application for managing Items, Inventory, and Orders. Includes support for stock updates via Top-Up and Withdrawal, and dynamic order number generation.
+A Spring Boot RESTful application for managing Items, Inventory, and Orders. Includes support for stock updates via
+Top-Up and Withdrawal, and dynamic order number generation.
 
 ---
 
+
+<div align="center">
+<a href="">![Unit Tests](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/maven.yml/badge.svg?branch=master)</a>
+</div>
 ## 🚀 Tech Stack
 
 - Java 21+

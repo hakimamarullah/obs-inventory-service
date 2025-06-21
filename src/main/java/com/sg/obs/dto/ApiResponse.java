@@ -13,30 +13,35 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public class ApiResponse<T> {
 
+    @Builder.Default
     private Integer code = 200;
     private String message;
     private T data;
 
 
 
-    public static <U> ApiResponse<U> setSuccess(U data, String message) {
+    public static <U> ApiResponse<U> setSuccess(U data, String message, int code) {
         return ApiResponse.<U>builder()
-                .code(200)
+                .code(code)
                 .data(data)
                 .message(message)
                 .build();
     }
 
     public static ApiResponse<Void> setSuccess(String message) {
-        return setSuccess(null, message);
+        return setSuccess(null, message, 200);
     }
 
     public static <U> ApiResponse<U> setSuccess() {
-        return setSuccess(null, "Success");
+        return setSuccess(null, "Success", 200);
+    }
+
+    public static <U> ApiResponse<U> setSuccess(U data, int code) {
+        return setSuccess(data, "Success", code);
     }
 
     public static <U> ApiResponse<U> setSuccess(U data) {
-        return setSuccess(data, "Success");
+        return setSuccess(data, "Success", 200);
     }
 
 
