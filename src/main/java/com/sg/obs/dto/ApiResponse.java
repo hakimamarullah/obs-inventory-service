@@ -20,7 +20,7 @@ public class ApiResponse<T> {
 
 
 
-    public static <U> ApiResponse<U> setSuccess(U data, String message, int code) {
+    public static <U> ApiResponse<U> setResponse(U data, String message, int code) {
         return ApiResponse.<U>builder()
                 .code(code)
                 .data(data)
@@ -28,20 +28,20 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static ApiResponse<Void> setSuccess(String message) {
-        return setSuccess(null, message, 200);
+    public static ApiResponse<Void> setSuccessWithMessage(String message) {
+        return setResponse(null, message, 200);
     }
 
-    public static <U> ApiResponse<U> setSuccess() {
-        return setSuccess(null, "Success", 200);
+    public static <U> ApiResponse<U> setDefaultSuccess() {
+        return setResponse(null, "Success", 200);
     }
 
-    public static <U> ApiResponse<U> setSuccess(U data, int code) {
-        return setSuccess(data, "Success", code);
+    public static <U> ApiResponse<U> setResponse(U data, int code) {
+        return setResponse(data, "Success", code);
     }
 
     public static <U> ApiResponse<U> setSuccess(U data) {
-        return setSuccess(data, "Success", 200);
+        return setResponse(data, "Success", 200);
     }
 
 

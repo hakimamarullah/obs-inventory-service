@@ -48,7 +48,7 @@ public class ItemSvc implements ItemService {
     @Override
     public ApiResponse<ItemInfo> addItem(CreateItemRequest payload) {
         Item newItem = itemRepository.save(mapper.convertValue(payload, Item.class));
-        return ApiResponse.setSuccess(convertToItemInfo(newItem), 201);
+        return ApiResponse.setResponse(convertToItemInfo(newItem), 201);
     }
 
     @Transactional

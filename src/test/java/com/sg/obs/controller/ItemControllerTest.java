@@ -1,6 +1,5 @@
 package com.sg.obs.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.PageWrapper;
 import com.sg.obs.dto.ApiResponse;
 import com.sg.obs.dto.item.CreateItemRequest;
@@ -9,13 +8,9 @@ import com.sg.obs.dto.item.UpdateItemRequest;
 import com.sg.obs.service.ItemService;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
-import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.data.domain.Page;
@@ -26,7 +21,6 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,23 +40,10 @@ class ItemControllerTest {
     @MockitoBean
     private ItemService itemService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
         RestAssured.baseURI = "http://localhost";
-
-        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
-                new ObjectMapperConfig().jackson2ObjectMapperFactory(
-                        new DefaultJackson2ObjectMapperFactory() {
-                            @Override
-                            public ObjectMapper create(Type cls, String charset) {
-                                return objectMapper;
-                            }
-                        }
-                ));
     }
 
     @Test
@@ -134,7 +115,7 @@ class ItemControllerTest {
                 .build();
 
         ItemInfo createdItem = createItemInfo(1L, createRequest.getName(), createRequest.getPrice());
-        doReturn(ApiResponse.setSuccess(createdItem, 201)).when(itemService).addItem(any(CreateItemRequest.class));
+        doReturn(ApiResponse.setResponse(createdItem, 201)).when(itemService).addItem(any(CreateItemRequest.class));
 
         // When
         ApiResponse<ItemInfo> response = given().contentType(ContentType.JSON)
@@ -154,7 +135,7 @@ class ItemControllerTest {
         // Then
         assertThat(response)
                 .usingRecursiveComparison()
-                .isEqualTo(ApiResponse.setSuccess(createdItem, 201));
+                .isEqualTo(ApiResponse.setResponse(createdItem, 201));
     }
 
     @Test
@@ -222,7 +203,7 @@ class ItemControllerTest {
         // Given
         Long itemId = 1L;
         String successMessage = "Item deleted successfully";
-        doReturn(ApiResponse.setSuccess(successMessage)).when(itemService).deleteItemById(itemId);
+        doReturn(ApiResponse.setSuccessWithMessage(successMessage)).when(itemService).deleteItemById(itemId);
 
         // When
         ApiResponse<String> response = given().pathParam("id", itemId)
@@ -240,7 +221,7 @@ class ItemControllerTest {
         // Then
         assertThat(response)
                 .usingRecursiveComparison()
-                .isEqualTo(ApiResponse.setSuccess(successMessage));
+                .isEqualTo(ApiResponse.setSuccessWithMessage(successMessage));
     }
 
     @Test
@@ -273,7 +254,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void addItem_ShouldReturnBadRequest_WhenMissingRequestBody() throws Exception {
+    void addItem_ShouldReturnBadRequest_WhenMissingRequestBody() {
         // When & Then
         given().contentType(ContentType.JSON)
                 .when()
@@ -284,7 +265,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void updateItem_ShouldReturnBadRequest_WhenMissingRequestBody() throws Exception {
+    void updateItem_ShouldReturnBadRequest_WhenMissingRequestBody() {
         // When & Then
         given().contentType(ContentType.JSON)
                 .when()

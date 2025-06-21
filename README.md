@@ -1,87 +1,130 @@
-# Inventory Management API (Dummy Project)
+# 📦 Inventory Management API (Dummy Project)
 
-A Spring Boot RESTful application for managing Items, Inventory, and Orders. Includes support for stock updates via
-Top-Up and Withdrawal, and dynamic order number generation.
-
----
-
+> A modern Spring Boot RESTful application for managing Items, Inventory, and Orders with intelligent stock management and dynamic order processing.
 
 <div align="center">
-<a href="">![Unit Tests](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/maven.yml/badge.svg?branch=master)</a>
+
+![Unit Tests](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/maven.yml/badge.svg?branch=master)
+
+[🚀 Quick Start](#-quick-start) • [📚 API Docs](#-api-documentation) • [🛠️ Tech Stack](#-tech-stack) • [💾 Database](#-database-setup)
+
 </div>
-## 🚀 Tech Stack
 
-- Java 21+
-- Spring Boot 3.x
-- Spring Data JPA (with H2, PostgreSQL, Oracle support)
-- OpenAPI / Swagger (via springdoc-openapi)
-- Hibernate
-- H2 Database (in-memory, for development)
+## ✨ Features
 
----
+- **Smart Inventory Management** - Real-time stock tracking with top-up and withdrawal operations
+- **Dynamic Order Processing** - Automated order number generation and status tracking
+- **Multi-Database Support** - H2, PostgreSQL, and Oracle compatibility
+- **Interactive API Documentation** - Built-in Swagger UI for testing and exploration
+- **Production Ready** - Comprehensive testing, monitoring, and deployment configurations
 
-## 🧪 Running the Application
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Java 17+
-- Maven 3.6+
+- ☕ Java 21+
+- 📦 Maven 3.6+
 
-### Start the app
+### Launch Application
 
 ```bash
+# Clone and run in one command
+git clone https://github.com/hakimamarullah/obs-inventory-service && cd inventory-management-api
 ./mvnw spring-boot:run
-````
+```
 
-The app will start on:
-`http://localhost:8080`
+🌐 **Application URL:** http://localhost:8080
 
----
+## 🛠️ Tech Stack
 
-## 🔍 Swagger UI & OpenAPI
+<table>
+<tr>
+<td><strong>Runtime</strong></td>
+<td>Java 21+, Spring Boot 3.x</td>
+</tr>
+<tr>
+<td><strong>Data Layer</strong></td>
+<td>Spring Data JPA, Hibernate</td>
+</tr>
+<tr>
+<td><strong>Databases</strong></td>
+<td>H2 (dev), PostgreSQL, Oracle</td>
+</tr>
+<tr>
+<td><strong>Documentation</strong></td>
+<td>OpenAPI 3.0, Swagger UI</td>
+</tr>
+</table>
 
-### API Documentation (Swagger UI)
+## 📚 API Documentation
 
-* 📄 Swagger UI:
-  👉 [`http://localhost:8080/swagger-ui.html`](http://localhost:8080/swagger-ui/index.html)
+### 🔍 Interactive Documentation
+- **Swagger UI:** [`localhost:8080/swagger-ui.html`](http://localhost:8080/swagger-ui/index.html)
+- **OpenAPI Spec:** [`localhost:8080/v3/api-docs`](http://localhost:8080/v3/api-docs)
 
-* 🧾 OpenAPI JSON:
-  👉 [`http://localhost:8080/v3/api-docs`](http://localhost:8080/v3/api-docs)
 
----
+## 💾 Database Setup
 
-## 🗄️ H2 Console (for development)
+### 🔧 H2 Console (Development)
+Perfect for testing and development:
 
-* URL: [`http://localhost:8080/h2-console`](http://localhost:8080/h2-console)
-* JDBC URL: `jdbc:h2:mem:test`
-* User: `sa`
-* Password: (see `application.properties`)
+```
+URL:      http://localhost:8080/h2-console
+JDBC:     jdbc:h2:mem:test
+Username: sa
+Password: (configured in application.properties)
+```
 
----
+### 📊 Database Schema
+The application automatically creates these sequences:
+- `item_seq` → Item ID generation
+- `order_seq` → Order number generation
+- `inventory_seq` → Inventory ID generation
 
-## 📦 Default Sequences
+### 🌱 Sample Data
+Sample items and inventory records are automatically loaded on startup via:
+- `schema.sql` → Database schema and sequences
+- `import.sql` → Sample data insertion
 
-* `item_seq` – for `Item` entity
-* `order_seq` – for order number generation
-* `inventory_seq` – for `Inventory` entity
+## 🔧 Development
 
----
-
-## 📁 Data Initialization
-
-Sample data is preloaded via:
-
-* `schema.sql` → creates sequences
-* `import.sql` → inserts sample items and inventory
-
-You can modify them in `src/main/resources/`.
-
----
-
-## 🧰 Useful Commands
-
-### Get Next Order Sequence (example query)
+### Useful SQL Queries
 
 ```sql
+-- Generate next order number
 SELECT NEXT VALUE FOR order_seq;
+
+-- Check inventory levels
+SELECT i.name, inv.quantity 
+FROM items i 
+JOIN inventory inv ON i.id = inv.item_id;
+
+-- View recent orders
+SELECT * FROM orders 
+ORDER BY created_at DESC 
+LIMIT 10;
 ```
+
+### 🧪 Testing
+
+```bash
+# Run all tests
+./mvnw test
+```
+
+## 📝 Configuration
+
+Key configuration files:
+- `application.properties` → Main application settings
+- `application-local.properties` → Local development environment
+- `application-test.properties` → Testing environment
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+<strong>Built with ❤️ using Spring Boot</strong>
+</div>

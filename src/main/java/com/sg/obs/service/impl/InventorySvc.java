@@ -60,7 +60,7 @@ public class InventorySvc implements InventoryService {
         inventory.setQuantity(payload.getQuantity());
         inventory.setType(payload.getType());
 
-        return ApiResponse.setSuccess(toInfo(inventoryRepository.save(inventory)), 201);
+        return ApiResponse.setResponse(toInfo(inventoryRepository.save(inventory)), 201);
     }
 
 
