@@ -44,6 +44,7 @@ class ItemControllerTest {
     void setUp() {
         RestAssured.port = port;
         RestAssured.baseURI = "http://localhost";
+        RestAssured.basePath = "/v1/items";
     }
 
     @Test
@@ -65,7 +66,7 @@ class ItemControllerTest {
                 .queryParam("size", 10)
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/v1/items")
+                .get("")
                 .as(new TypeRef<>() {
                 });
 
@@ -91,7 +92,7 @@ class ItemControllerTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .when()
-                .get("/v1/items/{id}")
+                .get("/{id}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
@@ -121,7 +122,7 @@ class ItemControllerTest {
         ApiResponse<ItemInfo> response = given().contentType(ContentType.JSON)
                 .body(createRequest)
                 .when()
-                .post("/v1/items")
+                .post("")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .contentType(ContentType.JSON)
@@ -147,7 +148,7 @@ class ItemControllerTest {
 
         // When & Then
         given().body(invalidRequest).contentType(ContentType.JSON)
-                .when().post("/v1/items")
+                .when().post("")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
@@ -168,7 +169,7 @@ class ItemControllerTest {
         ApiResponse<ItemInfo> response = given().contentType(ContentType.JSON)
                 .body(updateRequest)
                 .when()
-                .put("/v1/items")
+                .put("")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
@@ -193,7 +194,7 @@ class ItemControllerTest {
 
         // When & Then
         given().body(invalidRequest).contentType(ContentType.JSON)
-                .when().put("/v1/items")
+                .when().put("")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
@@ -208,7 +209,7 @@ class ItemControllerTest {
         // When
         ApiResponse<String> response = given().pathParam("id", itemId)
                 .accept(ContentType.JSON)
-                .when().delete("/v1/items/{id}")
+                .when().delete("/{id}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
@@ -237,7 +238,7 @@ class ItemControllerTest {
                 .queryParam("size", 10)
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/v1/items")
+                .get("")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON)
@@ -258,7 +259,7 @@ class ItemControllerTest {
         // When & Then
         given().contentType(ContentType.JSON)
                 .when()
-                .post("/v1/items")
+                .post("")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
 
@@ -269,7 +270,7 @@ class ItemControllerTest {
         // When & Then
         given().contentType(ContentType.JSON)
                 .when()
-                .put("/v1/items")
+                .put("")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
