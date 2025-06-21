@@ -53,7 +53,6 @@ public class LoggingAspect {
 
     @Around("methodWithLoggedRequestResponse() || classWithLogRequestResponse()")
     public Object logRequestAndResponse(ProceedingJoinPoint joinPoint) throws Throwable {
-        Instant start = Instant.now();
         Logger logger = LogManager.getLogger(joinPoint.getTarget().getClass());
 
         String reqId = loggingContext.getReqId();
@@ -64,6 +63,10 @@ public class LoggingAspect {
                 .map(HttpServletRequest::getServletPath)
                 .orElse("");
 
+        String methodName = Optional.ofNullable(request)
+                .map(HttpServletRequest::getMethod)
+                .map(String::toUpperCase)
+                .orElse("");
         String queryString = Optional.ofNullable(request)
                 .map(HttpServletRequest::getQueryString)
                 .orElse("");
@@ -74,21 +77,20 @@ public class LoggingAspect {
                 .orElse("");
 
         // Log Request
-        logger.info("{} | {} | REQUEST: {} QUERY: {}", servletPath, reqId, requestPayload, queryString);
+        logger.info("[{}] {} | {} | REQUEST: {} QUERY: {}", methodName, servletPath, reqId, requestPayload, queryString);
 
         // Proceed with the method execution and get the response
         Object response = joinPoint.proceed();
         String responseString = Optional.ofNullable(response).map(this::writeAsString).orElse("");
 
         // Log Response
-        logger.info("{} | {} | RESPONSE: {} DURATION: {} ms", servletPath, reqId, responseString, Duration.between(start, Instant.now()).toMillis());
+        logger.info("{} | {} | RESPONSE: {} DURATION: {} ms", servletPath, reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
 
         return response;
     }
 
     @Around("classWithLogResponse()")
     public Object logResponse(ProceedingJoinPoint joinPoint) throws Throwable {
-        Instant start = Instant.now();
         Logger logger = LogManager.getLogger(joinPoint.getTarget().getClass());
 
         String reqId = loggingContext.getReqId();
@@ -104,7 +106,7 @@ public class LoggingAspect {
         String responseString = Optional.ofNullable(response).map(this::writeAsString).orElse("");
 
         // Log Response
-        logger.info("{} | {} | RESPONSE: {} DURATION: {} ms", servletPath, reqId, responseString, Duration.between(start, Instant.now()).toMillis());
+        logger.info("{} | {} | RESPONSE: {} DURATION: {} ms", servletPath, reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
 
         return response;
     }

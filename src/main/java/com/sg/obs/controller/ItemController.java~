@@ -44,7 +44,9 @@ public class ItemController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get item by id")
     public ResponseEntity<ApiResponse<ItemInfo>> getItemById(@PathVariable Long id) {
-        return ResponseUtil.build(itemService.getItemById(id));
+        var res = itemService.getItemById(id);
+        log.info("FUCKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK {}",itemService.hashCode());
+        return ResponseEntity.ok(res);
     }
 
 

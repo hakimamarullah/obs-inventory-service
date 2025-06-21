@@ -1,7 +1,7 @@
 package com.sg.obs.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sg.obs.PageWrapper;
 import com.sg.obs.dto.ApiResponse;
 import com.sg.obs.dto.item.CreateItemRequest;
 import com.sg.obs.dto.item.ItemInfo;
@@ -9,7 +9,10 @@ import com.sg.obs.dto.item.UpdateItemRequest;
 import com.sg.obs.service.ItemService;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,30 +23,22 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ItemControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
     @LocalServerPort
     private int port;
@@ -57,21 +52,22 @@ class ItemControllerTest {
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-        RestAssured.baseURI = "http://localhost:";
+        RestAssured.baseURI = "http://localhost";
+
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
+                new ObjectMapperConfig().jackson2ObjectMapperFactory(
+                        new DefaultJackson2ObjectMapperFactory() {
+                            @Override
+                            public ObjectMapper create(Type cls, String charset) {
+                                return objectMapper;
+                            }
+                        }
+                ));
     }
 
     @Test
-    void getItems_ShouldReturnPagedItems() throws Exception {
+    void getItems_ShouldReturnPagedItems() {
         // Given
-
-        ApiResponse<PagedModel<ItemInfo>> res = given()
-                .queryParam("page", 0)
-                .queryParam("size", 10)
-                .contentType(ContentType.JSON)
-                .when()
-                .get("/v1/items")
-                .as(new TypeRef<>() {
-                });
         ItemInfo item1 = createItemInfo(1L, "Item 1", 20.0);
         ItemInfo item2 = createItemInfo(2L, "Item 2", 15.0);
         List<ItemInfo> items = Arrays.asList(item1, item2);
@@ -83,18 +79,13 @@ class ItemControllerTest {
         doReturn(apiResponse).when(itemService).getItemsList(any(Pageable.class));
 
         // When
-        MvcResult result = mockMvc.perform(get("/v1/items")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        // Then
-        String responseBody = result.getResponse().getContentAsString();
-        ApiResponse<PagedModel<ItemInfo>> response = objectMapper.readValue(responseBody,
-                new TypeReference<>() {
+        ApiResponse<PageWrapper<ItemInfo>> response = given()
+                .queryParam("page", 0)
+                .queryParam("size", 10)
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/v1/items")
+                .as(new TypeRef<>() {
                 });
 
         assertThat(response.getCode()).isEqualTo(200);
@@ -108,33 +99,34 @@ class ItemControllerTest {
     }
 
     @Test
-    void getItemById_ShouldReturnItem_WhenItemExists() throws Exception {
+    void getItemById_ShouldReturnItem_WhenItemExists() {
         // Given
         Long itemId = 1L;
         ItemInfo itemInfo = createItemInfo(itemId, "Test Item", 35.0);
-        doReturn(ApiResponse.setSuccess(itemInfo)).when(itemService).getItemById(itemId);
+        doReturn(ApiResponse.setSuccess(itemInfo)).when(itemService).getItemById(anyLong());
 
         // When
-        MvcResult result = mockMvc.perform(get("/v1/items/{id}", itemId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        // Then
-        String responseBody = result.getResponse().getContentAsString();
-        ApiResponse<ItemInfo> response = objectMapper.readValue(responseBody,
-                new TypeReference<>() {
+        ApiResponse<ItemInfo> response = given().pathParam("id", itemId)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .when()
+                .get("/v1/items/{id}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .contentType(ContentType.JSON)
+                .extract()
+                .response()
+                .as(new TypeRef<>() {
                 });
 
-        assertThat(response.getCode()).isEqualTo(200);
-        assertThat(response.getData().getId()).isEqualTo(itemId);
-        assertThat(response.getData().getName()).isEqualTo("Test Item");
-        assertThat(response.getData().getPrice()).isEqualTo(35.0);
+        // Then
+        assertThat(response)
+                .usingRecursiveComparison()
+                .isEqualTo(ApiResponse.setSuccess(itemInfo));
     }
 
     @Test
-    void addItem_ShouldCreateItem_WhenValidRequest() throws Exception {
+    void addItem_ShouldCreateItem_WhenValidRequest() {
         // Given
         CreateItemRequest createRequest = CreateItemRequest.builder()
                 .name("New Item")
@@ -145,41 +137,42 @@ class ItemControllerTest {
         doReturn(ApiResponse.setSuccess(createdItem, 201)).when(itemService).addItem(any(CreateItemRequest.class));
 
         // When
-        MvcResult result = mockMvc.perform(post("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+        ApiResponse<ItemInfo> response = given().contentType(ContentType.JSON)
+                .body(createRequest)
+                .when()
+                .post("/v1/items")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .contentType(ContentType.JSON)
+                .extract()
+                .response()
+                .as(new TypeRef<>() {
 
-        // Then
-        String responseBody = result.getResponse().getContentAsString();
-        ApiResponse<ItemInfo> response = objectMapper.readValue(responseBody,
-                new TypeReference<>() {
                 });
 
-        assertThat(response.getCode()).isEqualTo(201);
-        assertThat(response.getData().getId()).isEqualTo(1L);
-        assertThat(response.getData().getName()).isEqualTo("New Item");
-        assertThat(response.getData().getPrice()).isEqualTo(25.2);
+
+        // Then
+        assertThat(response)
+                .usingRecursiveComparison()
+                .isEqualTo(ApiResponse.setSuccess(createdItem, 201));
     }
 
     @Test
-    void addItem_ShouldReturnBadRequest_WhenInvalidRequest() throws Exception {
+    void addItem_ShouldReturnBadRequest_WhenInvalidRequest() {
         // Given - empty request body or invalid data
         CreateItemRequest invalidRequest = CreateItemRequest.builder()
                 .name("") // assuming name cannot be empty
                 .build();
 
         // When & Then
-        mockMvc.perform(post("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest());
+        given().body(invalidRequest).contentType(ContentType.JSON)
+                .when().post("/v1/items")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
-    void updateItem_ShouldUpdateItem_WhenValidRequest() throws Exception {
+    void updateItem_ShouldUpdateItem_WhenValidRequest() {
         // Given
         UpdateItemRequest updateRequest = UpdateItemRequest.builder()
                 .id(1L)
@@ -191,65 +184,67 @@ class ItemControllerTest {
         doReturn(ApiResponse.setSuccess(updatedItem)).when(itemService).updateItem(any(UpdateItemRequest.class));
 
         // When
-        MvcResult result = mockMvc.perform(put("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+        ApiResponse<ItemInfo> response = given().contentType(ContentType.JSON)
+                .body(updateRequest)
+                .when()
+                .put("/v1/items")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .contentType(ContentType.JSON)
+                .extract()
+                .response()
+                .as(new TypeRef<>() {
 
-        // Then
-        String responseBody = result.getResponse().getContentAsString();
-        ApiResponse<ItemInfo> response = objectMapper.readValue(responseBody,
-                new TypeReference<>() {
                 });
 
-        assertThat(response.getCode()).isEqualTo(200);
-        assertThat(response.getData().getId()).isEqualTo(1L);
-        assertThat(response.getData().getName()).isEqualTo("Updated Item");
-        assertThat(response.getData().getPrice()).isEqualTo(25.2);
+        // Then
+        assertThat(response)
+                .usingRecursiveComparison()
+                .isEqualTo(ApiResponse.setSuccess(updatedItem));
     }
 
     @Test
-    void updateItem_ShouldReturnBadRequest_WhenInvalidRequest() throws Exception {
+    void updateItem_ShouldReturnBadRequest_WhenInvalidRequest() {
         // Given - request without required fields
         UpdateItemRequest invalidRequest = UpdateItemRequest.builder()
                 .name("") // assuming validation fails for empty name
                 .build();
 
         // When & Then
-        mockMvc.perform(put("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isBadRequest());
+        given().body(invalidRequest).contentType(ContentType.JSON)
+                .when().put("/v1/items")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
-    void deleteItem_ShouldDeleteItem_WhenItemExists() throws Exception {
+    void deleteItem_ShouldDeleteItem_WhenItemExists() {
         // Given
         Long itemId = 1L;
         String successMessage = "Item deleted successfully";
         doReturn(ApiResponse.setSuccess(successMessage)).when(itemService).deleteItemById(itemId);
 
         // When
-        MvcResult result = mockMvc.perform(delete("/v1/items/{id}", itemId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+        ApiResponse<String> response = given().pathParam("id", itemId)
+                .accept(ContentType.JSON)
+                .when().delete("/v1/items/{id}")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .contentType(ContentType.JSON)
+                .extract()
+                .response()
+                .as(new TypeRef<>() {
 
-        // Then
-        String responseBody = result.getResponse().getContentAsString();
-        ApiResponse<String> response = objectMapper.readValue(responseBody,
-                new TypeReference<>() {
                 });
 
-        assertThat(response.getCode()).isEqualTo(200);
-        assertThat(response.getMessage()).isEqualTo(successMessage);
+        // Then
+        assertThat(response)
+                .usingRecursiveComparison()
+                .isEqualTo(ApiResponse.setSuccess(successMessage));
     }
 
     @Test
-    void getItems_ShouldHandleEmptyResult() throws Exception {
+    void getItems_ShouldHandleEmptyResult() {
         // Given
         Page<ItemInfo> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
         PagedModel<ItemInfo> emptyPagedModel = new PagedModel<>(emptyPage);
@@ -257,38 +252,45 @@ class ItemControllerTest {
         doReturn(ApiResponse.setSuccess(emptyPagedModel)).when(itemService).getItemsList(any(Pageable.class));
 
         // When
-        MvcResult result = mockMvc.perform(get("/v1/items")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+        ApiResponse<PageWrapper<ItemInfo>> response = given().queryParam("page", 0)
+                .queryParam("size", 10)
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/v1/items")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .contentType(ContentType.JSON)
+                .extract()
+                .response()
+                .as(new TypeRef<>() {
 
-        // Then
-        String responseBody = result.getResponse().getContentAsString();
-        ApiResponse<PagedModel<ItemInfo>> response = objectMapper.readValue(responseBody,
-                new TypeReference<>() {
                 });
 
-        assertThat(response.getCode()).isEqualTo(200);
-        assertThat(response.getData().getContent()).isEmpty();
+        // Then
+        assertThat(response)
+                .usingRecursiveComparison()
+                .isEqualTo(ApiResponse.setSuccess(new PageWrapper<>(emptyPagedModel)));
     }
 
     @Test
     void addItem_ShouldReturnBadRequest_WhenMissingRequestBody() throws Exception {
         // When & Then
-        mockMvc.perform(post("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+        given().contentType(ContentType.JSON)
+                .when()
+                .post("/v1/items")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+
     }
 
     @Test
     void updateItem_ShouldReturnBadRequest_WhenMissingRequestBody() throws Exception {
         // When & Then
-        mockMvc.perform(put("/v1/items")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+        given().contentType(ContentType.JSON)
+                .when()
+                .put("/v1/items")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     // Helper method to create ItemInfo objects

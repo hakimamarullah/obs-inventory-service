@@ -3,6 +3,7 @@ package com.sg.obs.aspect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.config.LoggingContext;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,16 +57,7 @@ public class LoggingAspect {
         Logger logger = LogManager.getLogger(joinPoint.getTarget().getClass());
 
         String reqId = loggingContext.getReqId();
-        HttpServletRequest request = Optional.ofNullable(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()))
-                .map(ServletRequestAttributes::getRequest).orElse(null);
-
-        String servletPath = Optional.ofNullable(request)
-                .map(HttpServletRequest::getServletPath)
-                .orElse("");
-
-        String queryString = Optional.ofNullable(request)
-                .map(HttpServletRequest::getQueryString)
-                .orElse("");
+        RequestMetadata request = new RequestMetadata((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
 
 
         Object requestPayload = Optional.ofNullable(getRequestBodyParameter(joinPoint))
@@ -73,14 +65,14 @@ public class LoggingAspect {
                 .orElse("");
 
         // Log Request
-        logger.info("{} | {} | REQUEST: {} QUERY: {}", servletPath, reqId, requestPayload, queryString);
+        logger.info("[{}] {} | {} | REQUEST: {} QUERY: {}", request.getMethod(), request.getPath(), reqId, requestPayload, request.getQueryString());
 
         // Proceed with the method execution and get the response
         Object response = joinPoint.proceed();
         String responseString = Optional.ofNullable(response).map(this::writeAsString).orElse("");
 
         // Log Response
-        logger.info("{} | {} | RESPONSE: {} DURATION: {} ms", servletPath, reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
+        logger.info("[{}] {} | {} | RESPONSE: {} DURATION: {} ms", request.getMethod(), request.getPath(), reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
 
         return response;
     }
@@ -90,19 +82,14 @@ public class LoggingAspect {
         Logger logger = LogManager.getLogger(joinPoint.getTarget().getClass());
 
         String reqId = loggingContext.getReqId();
-        HttpServletRequest request = Optional.ofNullable(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()))
-                .map(ServletRequestAttributes::getRequest).orElse(null);
-
-        String servletPath = Optional.ofNullable(request)
-                .map(HttpServletRequest::getServletPath)
-                .orElse("");
+        RequestMetadata request = new RequestMetadata((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
 
         // Proceed with the method execution and get the response
         Object response = joinPoint.proceed();
         String responseString = Optional.ofNullable(response).map(this::writeAsString).orElse("");
 
         // Log Response
-        logger.info("{} | {} | RESPONSE: {} DURATION: {} ms", servletPath, reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
+        logger.info("[{}] {} | {} | RESPONSE: {} DURATION: {} ms", request.getMethod(), request.getPath(), reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
 
         return response;
     }
@@ -141,6 +128,33 @@ public class LoggingAspect {
             // Do Nothing
         }
         return null;
+    }
+
+    @Getter
+    static class RequestMetadata {
+
+        private final String path;
+        private final String method;
+        private final String queryString;
+
+        public RequestMetadata(ServletRequestAttributes requestAttributes) {
+
+            HttpServletRequest request = Optional.ofNullable(requestAttributes)
+                    .map(ServletRequestAttributes::getRequest).orElse(null);
+
+            this.path = Optional.ofNullable(request)
+                    .map(HttpServletRequest::getServletPath)
+                    .orElse("");
+
+            this.method = Optional.ofNullable(request)
+                    .map(HttpServletRequest::getMethod)
+                    .map(String::toUpperCase)
+                    .orElse("");
+            this.queryString = Optional.ofNullable(request)
+                    .map(HttpServletRequest::getQueryString)
+                    .orElse("");
+
+        }
     }
 
 }
