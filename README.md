@@ -6,7 +6,7 @@ A Spring Boot RESTful application for managing Items, Inventory, and Orders. Inc
 
 ## 🚀 Tech Stack
 
-- Java 17
+- Java 21+
 - Spring Boot 3.x
 - Spring Data JPA (with H2, PostgreSQL, Oracle support)
 - OpenAPI / Swagger (via springdoc-openapi)

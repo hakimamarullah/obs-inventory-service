@@ -14,8 +14,6 @@ public class UpdateOrderRequest {
     @Min(value = 0, message = "Item quantity must be greater than 0")
     private Integer qty;
 
-    @NotNull(message = "Item price is required")
-    @Min(value = 0, message = "Item price must be greater than 0")
     private Double price;
 
     private Long itemId;

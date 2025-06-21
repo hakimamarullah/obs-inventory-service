@@ -13,12 +13,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Table(name = "INVENTORY")
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class Inventory extends BaseEntity {
