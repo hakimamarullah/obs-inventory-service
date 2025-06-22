@@ -23,7 +23,7 @@ services:
       - grafana-storage:/var/lib/grafana
 
   obs_inventory_service:
-    image: obs-inventory-service:beta
+    image: hakimamarullah/obs-inventory-svc:1.0.0
     container_name: obs-inventory-service
     ports:
       - "8080:8080"
