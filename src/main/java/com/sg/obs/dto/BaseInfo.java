@@ -8,13 +8,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class BaseInfo {
+public class BaseInfo implements Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = DatetimePattern.YYYY_MM_DD_HH_MM_SS)

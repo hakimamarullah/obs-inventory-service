@@ -7,11 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateOrderRequest {
+public class UpdateOrderRequest implements Serializable {
 
     @NotNull(message = "Order no is required")
     private String orderNo;

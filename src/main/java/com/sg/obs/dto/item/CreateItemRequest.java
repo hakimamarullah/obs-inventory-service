@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Length;
 
+import java.io.Serializable;
+
 @Data
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateItemRequest {
+public class CreateItemRequest implements Serializable {
 
     @NotBlank(message = "Item name is required")
     @Length(max = 255, message = "Item name must be less than 255 characters")

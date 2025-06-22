@@ -1,6 +1,6 @@
 package com.sg.obs.controller;
 
-import com.sg.obs.PageWrapper;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.ApiResponse;
 import com.sg.obs.dto.order.CreateOrderRequest;
 import com.sg.obs.dto.order.OrderInfo;

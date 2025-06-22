@@ -3,6 +3,7 @@ package com.sg.obs.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.config.MapperConfig;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.item.CreateItemRequest;
 import com.sg.obs.dto.item.ItemInfo;
 import com.sg.obs.dto.item.UpdateItemRequest;
@@ -20,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
@@ -66,10 +66,10 @@ class ItemSvcTest {
         doReturn(itemsPage).when(itemRepository).findAll(any(Pageable.class));
 
         // Act
-        ApiResponse<PagedModel<ItemInfo>> response = itemSvc.getItemsList(Pageable.ofSize(10));
+        ApiResponse<PageWrapper<ItemInfo>> response = itemSvc.getItemsList(Pageable.ofSize(10));
 
         // Assert
-        PagedModel<ItemInfo> pagedModel = response.getData();
+        PageWrapper<ItemInfo> pagedModel = response.getData();
 
         assertNotNull(pagedModel);
         assertNotNull(pagedModel.getContent());
@@ -81,12 +81,12 @@ class ItemSvcTest {
         assertEquals(item.getPrice(), itemInfo.getPrice());
         assertEquals(item.getRemainingStock(), itemInfo.getRemainingStock());
 
-        PagedModel.PageMetadata metadata = pagedModel.getMetadata();
+        PageWrapper.PageMetadata metadata = pagedModel.getMetadata();
         assertNotNull(metadata);
-        assertEquals(1, metadata.totalPages());
-        assertEquals(1, metadata.totalElements());
-        assertEquals(1, metadata.size());
-        assertEquals(0, metadata.number());
+        assertEquals(1, metadata.getTotalPages());
+        assertEquals(1, metadata.getTotalElements());
+        assertEquals(1, metadata.getSize());
+        assertEquals(0, metadata.getNumber());
 
         verify(itemRepository).findAll(any(Pageable.class));
 

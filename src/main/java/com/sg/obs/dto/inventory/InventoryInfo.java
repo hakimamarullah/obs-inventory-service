@@ -8,12 +8,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Data
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class InventoryInfo extends BaseInfo {
+public class InventoryInfo extends BaseInfo implements Serializable {
 
     private Long id;
     private Long itemId;

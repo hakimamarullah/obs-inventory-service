@@ -1,15 +1,15 @@
 package com.sg.obs.service;
 
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.order.CreateOrderRequest;
 import com.sg.obs.dto.order.OrderInfo;
 import com.sg.obs.dto.order.UpdateOrderRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 
 public interface OrderService {
 
-    ApiResponse<PagedModel<OrderInfo>> getOrderList(Pageable pageable);
+    ApiResponse<PageWrapper<OrderInfo>> getOrderList(Pageable pageable);
 
     ApiResponse<OrderInfo> getOrderByOrderNo(String orderNo);
 

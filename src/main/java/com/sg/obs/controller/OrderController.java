@@ -2,6 +2,7 @@ package com.sg.obs.controller;
 
 import com.sg.obs.annotations.LogRequestResponse;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.order.CreateOrderRequest;
 import com.sg.obs.dto.order.OrderInfo;
 import com.sg.obs.dto.order.UpdateOrderRequest;
@@ -12,7 +13,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,7 +34,7 @@ public class OrderController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get all orders with pagination")
-    public ResponseEntity<ApiResponse<PagedModel<OrderInfo>>> getOrders(@ParameterObject Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageWrapper<OrderInfo>>> getOrders(@ParameterObject Pageable pageable) {
         return ResponseUtil.build(orderService.getOrderList(pageable));
     }
 
