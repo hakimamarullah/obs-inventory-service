@@ -4,7 +4,7 @@
 
 <div align="center">
 
-![Unit Tests](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/tests.yml/badge.svg?branch=master) ![Build](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/build.yml/badge.svg?branch=master) ![Build Docker](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/docker.yml/badge.svg?branch=master)
+![Unit Tests](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/tests.yml/badge.svg?branch=master) ![Build](https://github.com/hakimamarullah/obs-inventory-service/actions/workflows/build.yml/badge.svg?branch=master)
 
 [🚀 Quick Start](#-quick-start) • [📚 API Docs](#-api-documentation) • [🛠️ Tech Stack](#-tech-stack) • [💾 Database](#-database-setup)
 
