@@ -3,6 +3,7 @@ package com.sg.obs.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.config.MapperConfig;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.order.CreateOrderRequest;
 import com.sg.obs.dto.order.OrderInfo;
 import com.sg.obs.dto.order.UpdateOrderRequest;
@@ -27,7 +28,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
@@ -81,10 +81,10 @@ class OrderSvcTest {
         doReturn(ordersPage).when(orderRepository).findAll(any(Pageable.class));
 
         // Act
-        ApiResponse<PagedModel<OrderInfo>> response = orderSvc.getOrderList(PageRequest.ofSize(10));
+        ApiResponse<PageWrapper<OrderInfo>> response = orderSvc.getOrderList(PageRequest.ofSize(10));
 
         // Assert
-        PagedModel<OrderInfo> pagedModel = response.getData();
+        PageWrapper<OrderInfo> pagedModel = response.getData();
 
         assertNotNull(pagedModel);
         assertNotNull(pagedModel.getContent());
@@ -96,12 +96,12 @@ class OrderSvcTest {
         assertEquals(order.getPrice(), orderInfo.getPrice());
         assertEquals(order.getItemName(), orderInfo.getItemName());
 
-        PagedModel.PageMetadata metadata = pagedModel.getMetadata();
+        PageWrapper.PageMetadata metadata = pagedModel.getMetadata();
         assertNotNull(metadata);
-        assertEquals(1, metadata.totalPages());
-        assertEquals(1, metadata.totalElements());
-        assertEquals(1, metadata.size());
-        assertEquals(0, metadata.number());
+        assertEquals(1, metadata.getTotalPages());
+        assertEquals(1, metadata.getTotalElements());
+        assertEquals(1, metadata.getSize());
+        assertEquals(0, metadata.getNumber());
 
 
         verify(orderRepository).findAll(any(Pageable.class));

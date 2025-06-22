@@ -2,6 +2,7 @@ package com.sg.obs.controller;
 
 import com.sg.obs.annotations.LogRequestResponse;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.inventory.CreateInventoryRequest;
 import com.sg.obs.dto.inventory.InventoryInfo;
 import com.sg.obs.dto.inventory.UpdateInventoryRequest;
@@ -12,7 +13,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +42,7 @@ public class InventoryController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get all inventories with pagination")
-    public ResponseEntity<ApiResponse<PagedModel<InventoryInfo>>> getInventoryList(@ParameterObject Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageWrapper<InventoryInfo>>> getInventoryList(@ParameterObject Pageable pageable) {
         return ResponseUtil.build(inventoryService.getInventoryList(pageable));
     }
 

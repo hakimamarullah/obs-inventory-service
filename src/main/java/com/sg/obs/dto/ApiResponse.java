@@ -7,11 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import java.io.Serializable;
+
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponse<T> {
+public class ApiResponse<T> implements Serializable {
 
     @Builder.Default
     private Integer code = 200;

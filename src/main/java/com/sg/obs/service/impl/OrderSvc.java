@@ -1,7 +1,9 @@
 package com.sg.obs.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sg.obs.config.HazelcastConfig;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.order.CreateOrderRequest;
 import com.sg.obs.dto.order.OrderInfo;
 import com.sg.obs.dto.order.UpdateOrderRequest;
@@ -17,6 +19,9 @@ import com.sg.obs.repository.OrderRepository;
 import com.sg.obs.service.OrderService;
 import com.sg.obs.utility.OrderUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -42,14 +47,16 @@ public class OrderSvc implements OrderService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(value = {HazelcastConfig.PAGED_ORDER_CACHE}, keyGenerator = "pageableKeyGenerator")
     @Override
-    public ApiResponse<PagedModel<OrderInfo>> getOrderList(Pageable pageable) {
+    public ApiResponse<PageWrapper<OrderInfo>> getOrderList(Pageable pageable) {
         Page<OrderInfo> orders = orderRepository.findAll(pageable)
                 .map(this::convertToOrderInfo);
-        return ApiResponse.setSuccess(new PagedModel<>(orders));
+        return ApiResponse.setSuccess(PageWrapper.of(new PagedModel<>(orders)));
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = {HazelcastConfig.ORDER_CACHE}, key = "#orderNo")
     @Override
     public ApiResponse<OrderInfo> getOrderByOrderNo(String orderNo) {
         OrderInfo orderInfo = orderRepository.findById(orderNo)
@@ -91,6 +98,10 @@ public class OrderSvc implements OrderService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = {HazelcastConfig.ORDER_CACHE}, key = "#orderNo"),
+            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true)
+    })
     @Modifying
     @Override
     public ApiResponse<String> deleteOrderByOrderNo(String orderNo) {
@@ -104,6 +115,10 @@ public class OrderSvc implements OrderService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = {HazelcastConfig.ORDER_CACHE}, key = "#payload.orderNo"),
+            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true)
+    })
     @Modifying
     @Override
     public ApiResponse<OrderInfo> updateOrder(UpdateOrderRequest payload) {

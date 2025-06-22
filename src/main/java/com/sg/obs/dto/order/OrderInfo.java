@@ -7,13 +7,15 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 
 @Data
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OrderInfo extends BaseInfo {
+public class OrderInfo extends BaseInfo implements Serializable {
 
     private String orderNo;
     private Long itemId;

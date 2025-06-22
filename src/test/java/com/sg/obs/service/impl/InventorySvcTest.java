@@ -3,6 +3,7 @@ package com.sg.obs.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.config.MapperConfig;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.inventory.CreateInventoryRequest;
 import com.sg.obs.dto.inventory.InventoryInfo;
 import com.sg.obs.dto.inventory.UpdateInventoryRequest;
@@ -21,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
@@ -104,11 +104,11 @@ class InventorySvcTest {
         doReturn(inventoryPage).when(inventoryRepository).findAll(any(Pageable.class));
 
         // Act
-        ApiResponse<PagedModel<InventoryInfo>> response = inventorySvc.getInventoryList(Pageable.ofSize(10));
+        ApiResponse<PageWrapper<InventoryInfo>> response = inventorySvc.getInventoryList(Pageable.ofSize(10));
 
         // Assert
         assertEquals(200, response.getCode());
-        PagedModel<InventoryInfo> pagedModel = response.getData();
+        PageWrapper<InventoryInfo> pagedModel = response.getData();
 
         assertNotNull(pagedModel);
         assertNotNull(pagedModel.getContent());
@@ -119,12 +119,12 @@ class InventorySvcTest {
         assertEquals(inventory.getId(), actualInventoryInfo.getId());
         assertEquals(inventory.getType(), actualInventoryInfo.getType());
 
-        PagedModel.PageMetadata metadata = pagedModel.getMetadata();
+        PageWrapper.PageMetadata metadata = pagedModel.getMetadata();
         assertNotNull(metadata);
-        assertEquals(1, metadata.totalPages());
-        assertEquals(1, metadata.totalElements());
-        assertEquals(1, metadata.size());
-        assertEquals(0, metadata.number());
+        assertEquals(1, metadata.getTotalPages());
+        assertEquals(1, metadata.getTotalElements());
+        assertEquals(1, metadata.getSize());
+        assertEquals(0, metadata.getNumber());
 
         verify(inventoryRepository).findAll(any(Pageable.class));
     }

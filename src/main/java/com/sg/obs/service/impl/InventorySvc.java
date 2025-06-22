@@ -2,6 +2,7 @@ package com.sg.obs.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.inventory.CreateInventoryRequest;
 import com.sg.obs.dto.inventory.InventoryInfo;
 import com.sg.obs.dto.inventory.UpdateInventoryRequest;
@@ -43,9 +44,9 @@ public class InventorySvc implements InventoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public ApiResponse<PagedModel<InventoryInfo>> getInventoryList(Pageable pageable) {
+    public ApiResponse<PageWrapper<InventoryInfo>> getInventoryList(Pageable pageable) {
         Page<InventoryInfo> page = inventoryRepository.findAll(pageable).map(this::toInfo);
-        return ApiResponse.setSuccess(new PagedModel<>(page));
+        return ApiResponse.setSuccess(PageWrapper.of(new PagedModel<>(page)));
     }
 
 

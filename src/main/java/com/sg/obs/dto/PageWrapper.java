@@ -1,5 +1,6 @@
-package com.sg.obs;
+package com.sg.obs.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -7,13 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.web.PagedModel;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageWrapper<T> {
+public class PageWrapper<T> implements Serializable {
 
     private List<T> content;
 
@@ -29,9 +31,19 @@ public class PageWrapper<T> {
         this.page.setTotalPages(Optional.ofNullable(metadata).map(PagedModel.PageMetadata::totalPages).orElse(0L));
     }
 
+    @JsonIgnore
+    public static <T> PageWrapper<T> of(PagedModel<T> pagedModel) {
+        return new PageWrapper<>(pagedModel);
+    }
+
+    @JsonIgnore
+    public PageMetadata getMetadata() {
+        return page;
+    }
+
     @Setter
     @Getter
-    static class PageMetadata {
+    public static class PageMetadata implements Serializable {
         private long number;
         private long size;
         private long totalElements;

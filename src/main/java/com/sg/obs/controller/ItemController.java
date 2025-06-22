@@ -2,6 +2,7 @@ package com.sg.obs.controller;
 
 import com.sg.obs.annotations.LogRequestResponse;
 import com.sg.obs.dto.ApiResponse;
+import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.item.CreateItemRequest;
 import com.sg.obs.dto.item.ItemInfo;
 import com.sg.obs.dto.item.UpdateItemRequest;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,7 +36,7 @@ public class ItemController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get All items with pagination")
-    public ResponseEntity<ApiResponse<PagedModel<ItemInfo>>> getItems(@ParameterObject Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageWrapper<ItemInfo>>> getItems(@ParameterObject Pageable pageable) {
         return ResponseUtil.build(itemService.getItemsList(pageable));
     }
 

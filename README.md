@@ -29,7 +29,7 @@
 
 ```bash
 # Clone and run in one command
-git clone https://github.com/hakimamarullah/obs-inventory-service && cd inventory-management-api
+git clone https://github.com/hakimamarullah/obs-inventory-service && cd obs-inventory-service
 ./mvnw spring-boot:run
 ```
 
