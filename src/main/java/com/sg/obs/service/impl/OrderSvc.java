@@ -67,6 +67,11 @@ public class OrderSvc implements OrderService {
 
     @Transactional
     @Modifying
+    @Caching(evict = {
+            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true),
+            @CacheEvict(value = {HazelcastConfig.PAGED_ITEM_CACHE}, allEntries = true),
+            @CacheEvict(value = {HazelcastConfig.ITEM_CACHE}, allEntries = true)
+    })
     @Override
     public ApiResponse<OrderInfo> createOrder(CreateOrderRequest payload) {
         Item item = itemRepository.findById(payload.getItemId())
@@ -100,7 +105,9 @@ public class OrderSvc implements OrderService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {HazelcastConfig.ORDER_CACHE}, key = "#orderNo"),
-            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true)
+            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true),
+            @CacheEvict(value = {HazelcastConfig.PAGED_ITEM_CACHE}, allEntries = true),
+            @CacheEvict(value = {HazelcastConfig.ITEM_CACHE}, allEntries = true)
     })
     @Modifying
     @Override
@@ -117,7 +124,9 @@ public class OrderSvc implements OrderService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {HazelcastConfig.ORDER_CACHE}, key = "#payload.orderNo"),
-            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true)
+            @CacheEvict(value = {HazelcastConfig.PAGED_ORDER_CACHE}, allEntries = true),
+            @CacheEvict(value = {HazelcastConfig.PAGED_ITEM_CACHE}, allEntries = true),
+            @CacheEvict(value = {HazelcastConfig.ITEM_CACHE}, allEntries = true)
     })
     @Modifying
     @Override
