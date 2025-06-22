@@ -1,0 +1,9 @@
+.idea
+target
+*.log
+HELP.md
+README.md
+.github
+logs
+postman
+docker/logs
