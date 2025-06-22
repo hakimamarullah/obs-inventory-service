@@ -1,0 +1,44 @@
+services:
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "3200:3200"   # Tempo HTTP API (for Grafana)
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/var/tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"       # Grafana UI
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+  obs_inventory_service:
+    image: obs-inventory-service:beta
+    container_name: obs-inventory-service
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_ARGS=--spring.profiles.active=local
+      - JAVA_OPTS=-DAPP_NAME=obs-inventory-service -Dotel.exporter.otlp.endpoint=http://tempo:4318 -Dotel.propagators=tracecontext,baggage
+      - LOG_PATH=/tmp/logs
+      - APP_NAME=obs-inventory-service
+      - LOG_SIZE=50MB
+    volumes:
+      - ./logs:/tmp/logs
+    depends_on:
+      - tempo
+
+
+volumes:
+  grafana-storage:
+  tempo-data:
