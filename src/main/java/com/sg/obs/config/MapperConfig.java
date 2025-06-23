@@ -26,4 +26,5 @@ public class MapperConfig {
                 .setTimeZone(TimeZone.getDefault());
 
     }
+
 }
