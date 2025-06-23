@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
-        <Property name="LOG_PATTERN">%d{dd-MM-yyyy HH:mm:ss.SSS}{GMT+7} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_PATTERN">trace_id: %X{trace_id} | span_id: %X{span_id} | %d{dd-MM-yyyy HH:mm:ss.SSS}{GMT+7} [%t] %-5level %logger{36} - %msg%n</Property>
         <Property name="LOG_PATH">${env:LOG_PATH:-./logs}</Property>
         <Property name="LOG_SIZE">${env:LOG_SIZE:-50MB}</Property>
         <Property name="LOG_ROLLOVER">${env:LOG_ROLLOVER_COUNT:-10}</Property>
-        <Property name="APP_NAME">${env:APP_NAME:-application}</Property>
+        <Property name="APP_NAME">${spring:spring.application.name:-obs-inventory-svc}</Property>
     </Properties>
 
     <Appenders>

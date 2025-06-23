@@ -2,9 +2,11 @@ package com.sg.obs.aspect;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sg.obs.config.LoggingContext;
+import io.opentelemetry.api.trace.Span;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -22,8 +24,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
 @Aspect
@@ -56,7 +56,7 @@ public class LoggingAspect {
     public Object logRequestAndResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         Logger logger = LogManager.getLogger(joinPoint.getTarget().getClass());
 
-        String reqId = loggingContext.getReqId();
+        String reqId = getTraceId();
         RequestMetadata request = new RequestMetadata((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
 
 
@@ -72,7 +72,7 @@ public class LoggingAspect {
         String responseString = Optional.ofNullable(response).map(this::writeAsString).orElse("");
 
         // Log Response
-        logger.info("[{}] {} | {} | RESPONSE: {} DURATION: {} ms", request.getMethod(), request.getPath(), reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
+        logger.info("[{}] {} | {} | RESPONSE: {}", request.getMethod(), request.getPath(), reqId, responseString);
 
         return response;
     }
@@ -81,7 +81,7 @@ public class LoggingAspect {
     public Object logResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         Logger logger = LogManager.getLogger(joinPoint.getTarget().getClass());
 
-        String reqId = loggingContext.getReqId();
+        String reqId = getTraceId();
         RequestMetadata request = new RequestMetadata((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
 
         // Proceed with the method execution and get the response
@@ -89,7 +89,7 @@ public class LoggingAspect {
         String responseString = Optional.ofNullable(response).map(this::writeAsString).orElse("");
 
         // Log Response
-        logger.info("[{}] {} | {} | RESPONSE: {} DURATION: {} ms", request.getMethod(), request.getPath(), reqId, responseString, Duration.between(loggingContext.getStartTime(), Instant.now()).toMillis());
+        logger.info("[{}] {} | {} | RESPONSE: {}", request.getMethod(), request.getPath(), reqId, responseString);
 
         return response;
     }
@@ -157,4 +157,16 @@ public class LoggingAspect {
         }
     }
 
+
+    private String getTraceId() {
+        try {
+            String traceId = Span.current().getSpanContext().getTraceId();
+            if (StringUtils.isBlank(traceId)) {
+                return loggingContext.getReqId();
+            }
+            return traceId;
+        } catch (Exception e) {
+            return loggingContext.getReqId();
+        }
+    }
 }
