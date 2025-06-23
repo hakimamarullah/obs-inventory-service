@@ -6,7 +6,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -15,8 +14,5 @@ import java.util.UUID;
 public class LoggingContext {
 
     private final String reqId = UUID.randomUUID().toString();
-
-    private final Instant startTime = Instant.now();
-
 }
 
