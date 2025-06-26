@@ -80,7 +80,7 @@ public class ItemSvc implements ItemService {
     @Transactional
     @Modifying
     @Caching(evict = {
-            @CacheEvict(value = {HazelcastConfig.ITEM_CACHE}, key = "#id"),
+            @CacheEvict(value = {HazelcastConfig.ITEM_CACHE}, key = "#payload.id"),
             @CacheEvict(value = {HazelcastConfig.PAGED_ITEM_CACHE}, allEntries = true)
     })
     @Override
