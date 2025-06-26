@@ -52,6 +52,8 @@ public class ItemSvc implements ItemService {
         return ApiResponse.setSuccess(itemInfo);
     }
 
+    @Transactional
+    @CacheEvict(value = {HazelcastConfig.PAGED_ITEM_CACHE}, allEntries = true)
     @Override
     public ApiResponse<ItemInfo> addItem(CreateItemRequest payload) {
         Item newItem = itemRepository.save(mapper.convertValue(payload, Item.class));
