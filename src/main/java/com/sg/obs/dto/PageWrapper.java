@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
 
 import java.io.Serializable;
@@ -31,8 +32,22 @@ public class PageWrapper<T> implements Serializable {
         this.page.setTotalPages(Optional.ofNullable(metadata).map(PagedModel.PageMetadata::totalPages).orElse(0L));
     }
 
+    public PageWrapper(Page<T> pagedModel) {
+        this.content = pagedModel.getContent();
+        this.page = new PageMetadata();
+        this.page.setNumber(pagedModel.getNumber());
+        this.page.setSize(pagedModel.getSize());
+        this.page.setTotalElements(pagedModel.getTotalElements());
+        this.page.setTotalPages(pagedModel.getTotalPages());
+    }
+
     @JsonIgnore
     public static <T> PageWrapper<T> of(PagedModel<T> pagedModel) {
+        return new PageWrapper<>(pagedModel);
+    }
+
+    @JsonIgnore
+    public static <T> PageWrapper<T> of(Page<T> pagedModel) {
         return new PageWrapper<>(pagedModel);
     }
 

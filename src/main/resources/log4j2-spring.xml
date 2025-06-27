@@ -70,6 +70,11 @@
             <AppenderRef ref="AppFile"/>
         </Logger>
 
+        <Logger name="com.sg.obs.controller.GlobalControllerAdvice" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AppFile"/>
+        </Logger>
+
         <Logger name="com.sg.obs.service" level="debug" additivity="false">
             <AppenderRef ref="AppFile"/>
         </Logger>

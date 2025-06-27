@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,9 +36,9 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get All items with pagination")
-    public ResponseEntity<ApiResponse<PageWrapper<ItemInfo>>> getItems(@ParameterObject Pageable pageable) {
-        return ResponseUtil.build(itemService.getItemsList(pageable));
+    @Operation(summary = "Get All items with pagination and optional filter by name")
+    public ResponseEntity<ApiResponse<PageWrapper<ItemInfo>>> getItems(@RequestParam(required = false) String name, @ParameterObject Pageable pageable) {
+        return ResponseUtil.build(itemService.getItemsList(pageable, name));
     }
 
 

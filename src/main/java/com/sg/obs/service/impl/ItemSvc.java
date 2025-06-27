@@ -13,6 +13,7 @@ import com.sg.obs.repository.ItemRepository;
 import com.sg.obs.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -37,7 +38,11 @@ public class ItemSvc implements ItemService {
     @Transactional(readOnly = true)
     @Cacheable(value = {HazelcastConfig.PAGED_ITEM_CACHE}, keyGenerator = "pageableKeyGenerator")
     @Override
-    public ApiResponse<PageWrapper<ItemInfo>> getItemsList(Pageable pageable) {
+    public ApiResponse<PageWrapper<ItemInfo>> getItemsList(Pageable pageable, String filter) {
+        if (!StringUtils.isBlank(filter)) {
+            Page<ItemInfo> items = itemRepository.findByNameContainingIgnoreCase(filter, pageable).map(this::convertToItemInfo);
+            return ApiResponse.setSuccess(PageWrapper.of(items));
+        }
         Page<ItemInfo> items = itemRepository.findAll(pageable).map(this::convertToItemInfo);
         return ApiResponse.setSuccess(PageWrapper.of(new PagedModel<>(items)));
     }

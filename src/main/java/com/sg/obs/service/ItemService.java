@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ItemService {
 
-    ApiResponse<PageWrapper<ItemInfo>> getItemsList(Pageable pageable);
+    ApiResponse<PageWrapper<ItemInfo>> getItemsList(Pageable pageable, String filter);
 
     ApiResponse<ItemInfo> getItemById(Long id);
 

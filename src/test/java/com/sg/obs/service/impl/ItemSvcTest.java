@@ -66,7 +66,7 @@ class ItemSvcTest {
         doReturn(itemsPage).when(itemRepository).findAll(any(Pageable.class));
 
         // Act
-        ApiResponse<PageWrapper<ItemInfo>> response = itemSvc.getItemsList(Pageable.ofSize(10));
+        ApiResponse<PageWrapper<ItemInfo>> response = itemSvc.getItemsList(Pageable.ofSize(10), null);
 
         // Assert
         PageWrapper<ItemInfo> pagedModel = response.getData();

@@ -5,8 +5,10 @@ import com.sg.obs.dto.ApiResponse;
 import com.sg.obs.dto.PageWrapper;
 import com.sg.obs.dto.inventory.CreateInventoryRequest;
 import com.sg.obs.dto.inventory.InventoryInfo;
+import com.sg.obs.dto.inventory.InventorySummary;
 import com.sg.obs.dto.inventory.UpdateInventoryRequest;
 import com.sg.obs.service.InventoryService;
+import com.sg.obs.service.ViewInventoryService;
 import com.sg.obs.utility.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -31,6 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class InventoryController {
 
     private final InventoryService inventoryService;
+
+    private final ViewInventoryService viewInventoryService;
 
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,6 +69,18 @@ public class InventoryController {
     @Operation(summary = "Delete inventory by ID")
     public ResponseEntity<ApiResponse<String>> deleteInventory(@PathVariable Long id) {
         return ResponseUtil.build(inventoryService.deleteInventoryById(id));
+    }
+
+    @GetMapping(value = "/items/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get inventory by Item ID")
+    public ResponseEntity<ApiResponse<PageWrapper<InventoryInfo>>> viewInventoryByItemId(@PathVariable Long id, @ParameterObject Pageable pageable) {
+        return ResponseUtil.build(viewInventoryService.getInventoryListByItemId(id, pageable));
+    }
+
+    @GetMapping(value = "/items/{id}/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get inventory summary by Item ID")
+    public ResponseEntity<ApiResponse<InventorySummary>> viewInventorySummaryByItemId(@PathVariable Long id) {
+        return ResponseUtil.build(viewInventoryService.getInventorySummaryByItemId(id));
     }
 }
 

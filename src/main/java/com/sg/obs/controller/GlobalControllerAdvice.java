@@ -29,7 +29,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        log.error(ex.getMessage(), ex);
+        log.error("[INVALID ARGUMENTS]: {}", ex.getMessage(), ex);
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
@@ -45,7 +45,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> internalServerError(Exception ex) {
-        log.error("[INTERNAL SERVER ERROR]: {}",ex.getMessage(), ex);
+        log.error("[INTERNAL SERVER ERROR]: {}", ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(500);
         response.setMessage(ex.getMessage());
@@ -60,7 +60,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<String>> httpMessageNotReadableError(HttpMessageNotReadableException ex) {
-        log.error("[MISSING REQUEST BODY]: {}",ex.getMessage(), ex);
+        log.error("[MISSING REQUEST BODY]: {}", ex.getMessage(), ex);
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(400);
         response.setMessage(ex.getMessage());

@@ -28,4 +28,5 @@ public interface InventoryService {
 
 
     ApiResponse<String> deleteInventoryById(Long id);
+
 }
