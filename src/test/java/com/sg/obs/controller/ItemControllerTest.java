@@ -55,10 +55,10 @@ class ItemControllerTest {
         List<ItemInfo> items = Arrays.asList(item1, item2);
 
         Page<ItemInfo> page = new PageImpl<>(items, PageRequest.of(0, 10), 2);
-        PagedModel<ItemInfo> pagedModel = new PagedModel<>(page);
-        ApiResponse<PagedModel<ItemInfo>> apiResponse = ApiResponse.setSuccess(pagedModel);
+        PageWrapper<ItemInfo> pagedModel = new PageWrapper<>(page);
+        ApiResponse<PageWrapper<ItemInfo>> apiResponse = ApiResponse.setSuccess(pagedModel);
 
-        doReturn(apiResponse).when(itemService).getItemsList(any(Pageable.class), null);
+        doReturn(apiResponse).when(itemService).getItemsList(any(Pageable.class), any());
 
         // When
         ApiResponse<PageWrapper<ItemInfo>> response = given()
@@ -231,7 +231,7 @@ class ItemControllerTest {
         Page<ItemInfo> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
         PagedModel<ItemInfo> emptyPagedModel = new PagedModel<>(emptyPage);
 
-        doReturn(ApiResponse.setSuccess(emptyPagedModel)).when(itemService).getItemsList(any(Pageable.class), null);
+        doReturn(ApiResponse.setSuccess(emptyPagedModel)).when(itemService).getItemsList(any(Pageable.class), any());
 
         // When
         ApiResponse<PageWrapper<ItemInfo>> response = given().queryParam("page", 0)
